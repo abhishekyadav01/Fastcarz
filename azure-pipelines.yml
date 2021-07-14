@@ -13,17 +13,17 @@ resources:
   repositories:
   - repository: web
     type: git
-    name: TEST/web
+    name: FastCarz/web
     trigger:
     - master
   - repository: api
     type: git
-    name: TEST/api
+    name: FastCarz/api
     trigger:
     - master
   - repository: test
     type: git
-    name: TEST/test
+    name: FastCarz/test
     trigger:
     - master
 
