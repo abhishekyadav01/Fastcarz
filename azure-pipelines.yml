@@ -9,4 +9,20 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-
+resources:
+  repositories:
+  - repository: web
+    type: git
+    name: TEST/web
+    trigger:
+    - master
+  - repository: api
+    type: git
+    name: TEST/api
+    trigger:
+    - master
+  - repository: test
+    type: git
+    name: TEST/test
+    trigger:
+    - master
