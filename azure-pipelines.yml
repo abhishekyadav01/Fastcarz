@@ -106,7 +106,9 @@ stages:
           abhishek.yadav@igtsolutions.com
         instructions: 'Please Provide approval to deploy to QA'
         onTimeout: 'reject'
+
   - deployment: deploy
+    dependsOn: waitForQA_approval
     displayName: Deploy to QA
     environment: qa
     strategy:
@@ -134,7 +136,9 @@ stages:
           abhishek.yadav@sita.aero
         instructions: 'Please Provide approval to deploy to PROD'
         onTimeout: 'reject'
+
   - deployment: deploy
+    dependsOn: waitForPROD_approval
     displayName: Deploy to PROD
     environment: prod
     strategy:
