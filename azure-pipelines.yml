@@ -30,9 +30,37 @@ resources:
 stages:
 - stage: CI
   jobs:
-  - job: CI
+  - job: API
     steps:
-      
+    - checkout: api
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        goals: 'install'
+
+  - job: WEB
+    steps:
+    - checkout: web
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        goals: 'install'
+
+  - job: TEST
+    steps:
+    - checkout: test
     - task: Maven@3
       inputs:
         mavenPomFile: 'pom.xml'
