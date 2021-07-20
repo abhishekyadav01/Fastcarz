@@ -34,6 +34,7 @@ stages:
     steps:
     - checkout: api
     - task: Maven@3
+      displayName: Maven Install
       inputs:
         mavenPomFile: 'pom.xml'
         mavenOptions: '-Xmx3072m'
@@ -45,6 +46,7 @@ stages:
         goals: 'install'
 
   - job: WEB
+    dependsOn: API
     steps:
     - checkout: web
     - task: Maven@3
@@ -59,6 +61,7 @@ stages:
         goals: 'install'
 
   - job: TEST
+    dependsOn: WEB
     steps:
     - checkout: test
     - task: Maven@3
@@ -71,3 +74,75 @@ stages:
         publishJUnitResults: true
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'install'
+
+- stage: Deploy_DEV
+  dependsOn: CI
+  jobs:
+  - deployment: deploy
+    displayName: Deploy to Dev
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo 'Hello world'
+
+- stage: Deploy_QA
+  dependsOn: Deploy_DEV
+  jobs:
+  - job: waitForQA_approval
+    displayName: Wait forApproval for QA
+    pool: server
+    timeoutInMinutes: 1440 # job times out in 1 days
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1440 # task times out in 1 hour
+      inputs:
+        notifyUsers: |
+          abhishek.yadav@igtsolutions.com
+        instructions: 'Please Provide approval to deploy to QA'
+        onTimeout: 'reject'
+  - deployment: deploy
+    displayName: Deploy to QA
+    environment: qa
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo 'Hello world'
+
+- stage: Deploy_PROD
+  dependsOn: Deploy_QA
+  jobs:
+  - job: waitForPROD_approval
+    displayName: Wait forApproval for PROD
+    pool: server
+    timeoutInMinutes: 1440 # job times out in 1 days
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1440 # task times out in 1 hour
+      inputs:
+        notifyUsers: |
+          abhishek.yadav@sita.aero
+        instructions: 'Please Provide approval to deploy to PROD'
+        onTimeout: 'reject'
+  - deployment: deploy
+    displayName: Deploy to PROD
+    environment: prod
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo 'Hello world'
